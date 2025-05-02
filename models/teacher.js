@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const constants = require('./../shared/constants');
 
 const teacherSchema = new mongoose.Schema({
     name: {
@@ -56,6 +57,6 @@ const teacherSchema = new mongoose.Schema({
 
 });
 
-const Teacher = mongoose.model('teachers', teacherSchema); // collection_name & schema
+const Teacher = mongoose.model(constants.collectionName.teachers_collection, teacherSchema); // collection_name & schema
 
 module.exports = Teacher;

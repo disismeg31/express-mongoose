@@ -1,11 +1,9 @@
-const { response } = require("express")
-
 class Response{
     payload = []
     success = false
     message =''
 
-    setPAyload(payload){
+    setPayload(payload){
         this.payload = payload
     }
 
@@ -18,4 +16,4 @@ class Response{
     }
 }
 
-module.exports =response;
+module.exports = Response;

@@ -1,12 +1,48 @@
-const CONSTANTS = {
+ const CONSTANTS = {
     PORT:3535,
     URLS:{
         USERS_PREFIX:'/users',
         TEACHERS_PREFIX:'/teachers',
     },
+    subUrls:{
+        users:{
+            Insert_User:'/insertUser',
+            Get_Users:'/getUsers',
+            Get_Failed_Students:'/getFailedStudents',
+            Get_Passed_Students:'/getPassedStudents',
+            Get_Average_Age_Of_Students:'/getAverageAgeOfStudents',
+            Update_By_Name:'/updateByName',
+            Update_Using_Id:'/updateUsingId',
+            Delete_By_Name:'/deleteByName',
+            Delete_By_Id:'/deleteById'
+        },
+        teachers:{
+            Insert_Teacher:'/insertTeacher',
+            Get_Teachers:'/getTeachers',
+            Get_Average_Salary:'/getAverageSalary',
+            Get_Oldest_Teacher:'/getOldestTeacher',
+            Get_Youngest_Teacher:'/getYoungestTeacher',
+            Get_Most_Salaried_Teacher:'/getMostSalariedTeacher',
+            Get_Average_Age_Of_Teachers:'/getAverageAgeOfTeachers',
+            Get_Teacher_By_Name:'/getTeacherByName',
+            Get_Teacher_By_Alphabetic_Order_Of_Name:'/getTeacherByAlphabeticOrderOfName',
+            Get_Teacher_By_Lowest_Salary_Order:'/getTeacherByLowestSalaryOrder',
+            Get_Count_Of_Unmarried_Teachers:'/getCountOfUnmarriedTeachers',
+            Get_Count_Of_Married_Teachers:'/getCountOfMarriedTeachers',
+            Get_Teacher_By_Place:'/getTeacherByPlace',  
+            Update_Teacher_Using_Id:'/updateTeacherUsingId',
+            Update_Teacher_By_Name:'/updateTeacherByName',
+            Delete_Teacher_By_Name:'/deleteTeacherByName',
+            Delete_Teacher_By_Id:'/deleteTeacherById'
+        }
+    },
     MongoDBUrl:'mongodb://localhost:',
     mongoDBPort:27017,
-    mongoDBName:'/csbatch'
+    mongoDBName:'/csbatch',
+    collectionName:{
+        users_collection:'students',
+        teachers_collection:'teachers'
+    }
 }
 
 module.exports = CONSTANTS

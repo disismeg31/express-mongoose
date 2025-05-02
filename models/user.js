@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const constants = require('./../shared/constants');
+
 //import response.js
 const userSchema = new mongoose.Schema({
     name: {
@@ -44,6 +46,6 @@ const userSchema = new mongoose.Schema({
 //     this.createdDate = new Date();
 //     next()
 // })
-const User = mongoose.model('students', userSchema);
+const User = mongoose.model(constants.collectionName.users_collection, userSchema);
 
 module.exports = User;

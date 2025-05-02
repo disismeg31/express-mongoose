@@ -1,6 +1,8 @@
 let user = require("./../models/user"); // require the schema inside the controller
+let Response =require("./../shared/response");
 
 function getUsers(req, res) {
+  let response = new Response();
   const page = parseInt(req.query.page) || 1;
   const limit = 5;
   const skip = (page - 1) * limit;
@@ -8,12 +10,12 @@ function getUsers(req, res) {
     .find({}, { _id: 0, name: 1, age: 1 })
     .skip(skip)
     .limit(limit)
-    .then((result) =>
-      res.json({
-        message: `Got Page ${page} Users 😉`,
-        payload: result,
-        status: true,
-      })
+    .then((result) =>{
+      response.setMessage(`Got Page ${page} Users 😉`);
+      response.setPayload(result);
+      response.setSuccess(true);
+      res.json(response); 
+      }
     )
     .catch((err) => {
       console.log(err);
@@ -22,6 +24,7 @@ function getUsers(req, res) {
 }
 
 function insertUser(req, res) {
+  let response = new Response();
   let dataToInsert = req.body;
   console.log(dataToInsert);
   user
@@ -30,97 +33,91 @@ function insertUser(req, res) {
       if (data.length > 0) {
         //dup found
         console.log("Duplicate found:", data);
-        res.json({
-          message: "User with this name already exists ❗❗",
-          status: false,
-        });
+        response.setMessage("User with this name already exists ❗❗");
+        response.setSuccess(false);
+        res.json(response)
       } else {
         user.create(dataToInsert)
           .then((result) => {
             console.log("1 document inserted");
             const { _id, ...dataOnly } = dataToInsert;
-            res.json({
-              message: "Insertion to collection successful✅",
-              payload: dataOnly,
-              status: true,
-            });
+            response.setMessage("Insertion to collection successful✅");
+            response.setPayload(dataOnly);
+            response.setSuccess(true);
+            res.json(response);
           })
           .catch((err) => {
             console.log("Error", err);
-            res.json({
-              message: "Couldn't insert to collection",
-              payload:err,
-              status: false,
-            });
+            response.setMessage("Couldn't insert to collection");
+            response.setPayload(err);
+            response.setSuccess(false);
+            res.json(response)
           });
       }
     })
     .catch((err) => {
       console.log("Error", err);
-      res.json({
-        message: "Error checking for duplicates",
-        status: false,
-      });
+      response.setMessage("Error checking for duplicates");
+      response.setSuccess(false);
+      res.json(response)
     });
 }
 
 function getFailedStudents(req, res) {
+  let response = new Response();
       user.find({ marks: { $lt: 18 } })
       .then((data)=>{
         let failedStudents = data;
-          res.json({
-            message: "The students who failed are:",
-            payload: failedStudents,
-            status: true,
-          });
+          response.setMessage("The students who failed are:");
+          response.setPayload(failedStudents);
+          response.setSuccess(true);
+          res.json(response)
       })
       .catch((err)=> {
-        res.json({
-          message: "Couldn't get the failed students data",
-          status: false,
-        });
+        response.setMessage("Couldn't get the failed students data");
+        response.setSuccess(false);
+        res.json(response);
       })
 }
 
 function getPassedStudents(req, res) {
+  let response = new Response();
       user.find({ marks: { $gte: 18 } },{ name: 1, _id: 0,marks:1 } )
       .then((data)=>{
         let failedStudents = data;
-        res.json({
-          message: "The names students who passed are:",
-          payload: failedStudents,
-          status: true,
-        });
+        response.setMessage("The names students who passed are:");
+        response.setPayload(failedStudents);
+        response.setSuccess(true);
+        res.json(response);
       })
       .catch((err)=> {
-        res.json({
-          message: "Couldn't get the passed students data",
-          status: false,
-        });
+        response.setMessage("Couldn't get the passed students data");
+        response.setSuccess(false);
+        res.json(response);
       })
 }
 
 function getAverageAgeOfStudents(req, res) {
+  let response = new Response();
       user.find({})
       .then((data)=>{
         let ages = data.map((student) => student.age);
           let sumOfAges = ages.reduce((a, c) => a + c, 0);
           let averageAgeIs = Number((sumOfAges / ages.length).toFixed(0));
-          res.json({
-            message: "The average age of students in cs batch is :",
-            payload: averageAgeIs,
-            status: true,
-          });
+          response.setMessage("The average age of students in cs batch is :");
+          response.setPayload(averageAgeIs);
+          response.setSuccess(true);
+          res.json(response);
       })
       .catch((err) =>{
-        res.json({
-          message: "Couldn't get the students age data",
-          status: false,
-        });
+        response.setMessage("Couldn't get the students age data");
+        response.setSuccess(false);
+        res.json(response);
       })
 }
 
 function deleteByName(req, res) {
+  let response = new Response();
   let nameToDelete = req.query;
   let regexName = new RegExp(`^${nameToDelete.name}$`, "i");
   if (nameToDelete.name) {
@@ -136,42 +133,38 @@ function deleteByName(req, res) {
               "\nDeleted Data" + dataGotDeleted
             );
             if (result.deletedCount) {
-              res.json({
-                message: `Deleted records of ${nameToDelete.name} Sucessfully!!!✅`,
-                payload: dataGotDeleted,
-                status: true,
-              });
+              response.setMessage(`Deleted records of ${nameToDelete.name} Sucessfully!!!✅`);
+              response.setPayload(dataGotDeleted);
+              response.setSuccess(true);
+              res.json(response);
             } else {
-              res.json({
-                message: `Already Deleted/No records of name: ${nameToDelete.name}`,
-                payload: dataGotDeleted,
-                status: false,
-              });
+              response.setMessage(`Already Deleted/No records of name: ${nameToDelete.name}`);
+              response.setPayload(dataGotDeleted);
+              response.setSuccess(false);
+              res.json(response);
             }
           })
           .catch((err) => {
-            res.json({
-              message: `Error in the query/db etc`,
-              status: false,
-            });
+            response.setMessage(`Error in the query/db etc`);
+            response.setSuccess(false);
+            res.json(response);
           });
       })
       .catch((err) => {
         console.log("Error", err);
-        res.json({
-          message: "db/syntaxt Error while checking for if name exists",
-          status: false,
-        });
+        response.setMessage("db/syntaxt Error while checking for if name exists");
+        response.setSuccess(false);
+        res.json(response);
       });
   } else {
-    res.json({
-      message: ` Please Provide name (existing name) to delete data ❌`,
-      status: false,
-    });
+    response.setMessage(` Please Provide name (existing name) to delete data ❌`);
+    response.setSuccess(false)
+    res.json(response);
   }
 }
 
 function deleteById(req, res) {
+  let response = new Response();
   let idToDelete = req.query;
   user
     .find({ _id: idToDelete.id })
@@ -182,35 +175,32 @@ function deleteById(req, res) {
           .findByIdAndDelete({ _id: idToDelete.id })
           .then((result) => {
             console.log("Result", result);
-            res.json({
-              message: `Deleted records of id: ${idToDelete.id} Sucessfully!!!✅`,
-              payload: dataGotDeleted,
-              status: true,
-            });
+            response.setMessage(`Deleted records of id: ${idToDelete.id} Sucessfully!!!✅`);
+            response.setPayload(dataGotDeleted);
+            response.setSuccess(true);
+            res.json(response);
           })
           .catch((err) => {
-            res.json({
-              message: `Error in the query/db etc`,
-              status: false,
-            });
+            response.setMessage(`Error in the query/db etc`);
+            response.setSuccess(false);
+            res.json(response);
           });
       } else {
-        res.json({
-          message: `Couldn't get the student id: ${idToDelete.id} data ❌`,
-          status: false,
-        });
+        response.setMessage(`Couldn't get the student id: ${idToDelete.id} data ❌`);
+        response.setSuccess(false);
+        res.json(response);
       }
     })
     .catch((err) => {
       console.log("Error", err);
-      res.json({
-        message: "Error checking for if id exists",
-        status: false,
-      });
+      response.setMessage("Error checking for if id exists");
+      response.setSuccess(false);
+      res.json(response);
     });
 }
 
 function updateUsingId(req, res) {
+    let response = new Response();
     let dataToUpdate = req.body;
     let updateId = req.query.id;
     console.log("id to update: ", updateId.name);
@@ -225,42 +215,38 @@ function updateUsingId(req, res) {
              .then((result)=>{
                console.log("Result", result);
                let updated_result = result;
-                   res.json({
-                     message: `Update Sucessfull!!!✅ updated ${data.name} data with:`,
-                     payload: updated_result,
-                     status: true,
-                   });
+               response.setMessage(`Update Sucessfull!!!✅ updated ${data.name} data with:`);
+               response.setPayload(updated_result);
+               response.setSuccess(true);
+               res.json(response);
              })
              .catch((err) =>{
-               res.json({
-                 message: `Error in the query/db etc`,
-                 status: false,
-               });
+              response.setMessage(`Error in the query/db etc`);
+              response.setSuccess(false);
+              res.json(response);
              })  
          } 
          else {
-           res.json({
-             message: `Couldn't get the student of id: ${updateId.id} data`,
-             status: false,
-           });
+          response.setMessage(`Couldn't get the student of id: ${updateId.id} data`);
+          response.setSuccess(false);
+          res.json(response);
          }
         })
         .catch((err) =>{
           console.log("Error", err);
-          res.json({
-            message: "Error checking for if id exists",
-            status: false,
-          });
+          response.setMessage("Error checking for if id exists");
+          response.setSuccess(false);
+          res.json(response);
         });  
     } else {
-      res.json({
-        message: `Please provide the id(existing) and data to update in the body`,
-        status: false,
-      });
+      response.setMessage(`Please provide the id(existing) and data to update in the body`);
+      response.setSuccess(false);
+      res.json(response);
     }
 }
 // {name:{$regex:`^${startingLetter}`,$options:"i"}}
 function updateByName(req, res) {
+    let response = new Response();
     let dataToUpdate = req.body;
     let ogName = req.query;
     console.log("Name to update: ", ogName.name);
@@ -275,39 +261,34 @@ function updateByName(req, res) {
                )
             .then((result)=>{
               console.log("Result", result);
-              res.json({
-                message: `Update Sucessfull!!!✅ updated ${ogName.name} data with:`,
-                payload: dataToUpdate,
-                status: true,
-              });
+              response.setMessage(`Update Sucessfull!!!✅ updated ${ogName.name} data with:`);
+              response.setPayload(dataToUpdate);
+              response.setSuccess(true);
+              res.json(response);
             })
             .catch((err) =>{
-              res.json({
-                message: `Error in the query/db etc`,
-                status: false,
-              });
+              response.setMessage(`Error in the query/db etc`);
+              response.setSuccess(false);
+              res.json(response);
             });
           } 
           else {
-          res.json({
-            message: `Couldn't get the student name ${ogName.name} data`,
-            status: false,
-          });
+            response.setMessage(`Couldn't get the student name ${ogName.name} data`);
+            response.setSuccess(false);
+            res.json(response);
           }
         })
         .catch((err)=> {
           console.log("Error", err);
-          res.json({
-            message: "Error checking for if name exists",
-            status: false,
-          });
+          response.setMessage("Error checking for if name exists");
+          response.setSuccess(false);
+          res.json(response);
         }) 
     } 
     else {
-      res.json({
-        message: `Please provide the name (that exists - old name) and data to update in the bidy`,
-        status: false,
-      });
+      response.setMessage(`Please provide the name (that exists - old name) and data to update in the body`);
+      response.setSuccess(false);
+      res.json(response);
     }
 }
 
