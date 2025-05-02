@@ -1,6 +1,6 @@
 ## 📁 Project Folder Structure
 <pre lang="text">
-```text 
+``` 
 project-root/ 
 ├── models/        # Mongoose schemas (e.g., user.js, teacher.js) 
 ├── controllers/   # Route logic and database operations 
