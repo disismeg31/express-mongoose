@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const constants = require('./../shared/constants');
+let Teacher = require("./../models/teacher");
 
 //import response.js
 const userSchema = new mongoose.Schema({
@@ -35,17 +36,51 @@ const userSchema = new mongoose.Schema({
             values: ['MALE', 'FEMALE'],
             message: 'gender must be either "MALE" or "FEMALE"'
         }
+    },
+    createdBy:{
+        type:String
+    },
+    updatedBy:{
+        type:String
+    },
+    updatedAt:{
+        type:Date
     }
-    // createdDAte:{
-    //     type:Date
-    // }
 });
 
 //next means before the adding to db it will get into that fn 
-// userSchema.pre('save',function(next){
-//     this.createdDate = new Date();
-//     next()
-// })
-const User = mongoose.model(constants.collectionName.users_collection, userSchema);
+userSchema.pre('save',function(next){
+    console.log('Before saving user:', this);
+    Teacher.find({})
+    .then((result)=>{
+        console.log("Result",result);
+        this.set({createdBy:result[0]._id});
+    })
+    .catch((err)=>{console.log(err)})
+    .finally(()=>{
+        next();
+    })   
+})
 
+userSchema.pre('updateOne', function(next){
+    Teacher.find({})
+    .then((result) => {
+      this.setUpdate({
+        ...(this.getUpdate() || {}),
+        updatedBy: result[0].name,
+        updatedAt: new Date()
+      });
+    })
+    .catch( (err)=>{
+        console.error("Error fetching teacher:", err);
+      // Optionally pass error to next to halt the operation
+      return next(err);
+    })
+    .finally(() => {
+        next(); // Called once, after either then or catch
+    });
+})
+
+
+const User = mongoose.model(constants.collectionName.users_collection, userSchema);
 module.exports = User;

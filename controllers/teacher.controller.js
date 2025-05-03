@@ -1,7 +1,8 @@
 let teacher = require("./../models/teacher"); // require the schema inside the controller
-
+let Response =require("./../shared/response");
 
 function getTeachers(req, res) {
+  let response = new Response();
   const page = parseInt(req.query.page) || 1;
   const limit = 5;
   const skip = (page - 1) * limit;
@@ -9,126 +10,119 @@ function getTeachers(req, res) {
     .find({}, { _id: 0, name: 1, age: 1 })
     .skip(skip)
     .limit(limit)
-    .then((result) =>
-      res.json({
-        message: `Got Page ${page} Teachers 😉`,
-        payload: result,
-        status: true,
-      })
-    )
+    .then((result) =>{
+      response.setMessage(`Got Page ${page} Teachers 😉`);
+      response.setPayload(result);
+      response.setSuccess(true)
+      res.json(response);
+    })
     .catch((err) => {
       console.log(err);
-      res.json(err);
+      response.setMessage('Error getting users');
+      response.setPayload(err);
+      response.setSuccess(false)
+      res.json(response);
     });
 }
 
 function getTeacherByName(req, res) {
-  teacher
-    .find({ name: new RegExp(`^${req.query.name}$`, "i") })
+  let response = new Response();
+  teacher.find({ name: new RegExp(`^${req.query.name}$`, "i") })
     .then((result) => {
       if (result.length > 0) {
         console.log(result);
-        res.json({
-          message: `Got the Teacher with name : ${req.query.name} 😉`,
-          payload: result,
-          status: true,
-        });
+        response.setMessage(`Got the Teacher with name : ${req.query.name} 😉`);
+        response.setPayload(result);
+        response.setSuccess(true);
+        res.json(response);
       } else {
-        res.json({
-          message: `Send a name as query ?name=name_to_search`,
-          payload: result,
-          status: false,
-        });
+        response.setMessage(`Send a name as query ?name=name_to_search`);
+        response.setPayload(result);
+        response.setSuccess(false);
+        res.json(response);
       }
     })
     .catch((err) => {
       console.log(err);
-      res.json({
-        message: `Couldn't find the teacher with the name : ${req.query.name}`,
-        status: false,
-      });
+      response.setMessage(`Couldn't find the teacher with the name : ${req.query.name}`);
+      response.setSuccess(false);
+      res.json(response);
     });
 }
 
 function getTeacherByAlphabeticOrderOfName(req, res) {
-  teacher
-    .find({}, null, { sort: { name: 1 } })
+  let response = new Response();
+  teacher.find({}, null, { sort: { name: 1 } })
     .then((result) => {
       console.log(result);
-      res.json({
-        message: `Got the Teachers in alphabetic order of name😉`,
-        payload: result,
-        status: true,
-      });
+      response.setMessage(`Got the Teachers in alphabetic order of name😉`);
+      response.setPayload(result);
+      response.setSuccess(true);
+      res.json(response);
     })
     .catch((err) => {
       console.log(err);
-      res.json({
-        message: `Couldn't get the teachers in alphabetic order`,
-        status: false,
-      });
+      response.setMessage(`Couldn't get the teachers in alphabetic order`);
+      response.setSuccess(false);
+      res.json(response);
     });
 }
 
 function getTeacherByPlace(req,res){
+  let response = new Response();
   let {place} = req.body;
   if(place){
     teacher.findOne({place:new RegExp(`^${place}$`, "i")})
   .then((result)=>{
     console.log(result);
-      res.json({
-        message: `Got the Teachers from the place ${place}😉`,
-        payload: result,
-        status: true,
-      });
+    response.setMessage(`Got the Teachers from the place ${place}😉`);
+    response.setPayload(result);
+    response.setSuccess(true);
+    res.json(response);
   })
   .catch((err) => {
     console.log(err);
-    res.json({
-      message: `Couldn't get the teacher from the place ${place}`,
-      status: false,
-    });
+    response.setMessage(`Couldn't get the teacher from the place ${place}`);
+    response.setSuccess(false);
+    res.json(response);
   })
   }
   else{
-    res.json({
-      message: `Please enter the place in the body : "place":"place_name" `,
-      status: false,
-    });
+    response.setMessage(`Please enter the place in the body : "place":"place_name" `);
+    response.setSuccess(false);
+    res.json(response);
   }
 }
 
 function getTeacherByLowestSalaryOrder(req, res) {
-  teacher
-    .find({}, null, { sort: { salary: 1 } })
+  let response = new Response();
+  teacher.find({}, null, { sort: { salary: 1 } })
     .then((result) => {
       console.log(result);
-      res.json({
-        message: `Got the Teachers in lowest salary order😉`,
-        payload: result,
-        status: true,
-      });
+      response.setMessage(`Got the Teachers in lowest salary order😉`);
+      response.setPayload(result);
+      response.setSuccess(true);
+      res.json(response);
     })
     .catch((err) => {
       console.log(err);
-      res.json({
-        message: `Couldn't get the teachers Teachers in lowest salary order`,
-        status: false,
-      });
+      response.setMessage(`Couldn't get the teachers Teachers in lowest salary order`);
+      response.setSuccess(false);
+      res.json(response);
     });
 }
 
 function insertTeacher(req, res) {
+  let response = new Response();
   let dataToInsert = req.body;
   console.log(dataToInsert);
     teacher.find({ name: new RegExp(`^${dataToInsert.name}$`, "i") })
       .then((result) => {
         if (result.length > 0) {
           console.log("Duplicate found:", result);
-          res.json({
-            message: "Teacher with this name already exists ❗❗",
-            status: false,
-          });
+          response.setMessage("Teacher with this name already exists ❗❗");
+          response.setSuccess(false);
+          res.json(response);
         } else {
           teacher
             .create(dataToInsert)
@@ -136,34 +130,31 @@ function insertTeacher(req, res) {
               console.log("1 document inserted");
               const { _doc } = createdDoc;
               const { _id,__v, ...dataToDisplay } = _doc;
-              res.json({
-                message: "Insertion to collection successful✅",
-                payload: dataToDisplay,
-                status: true,
-              });
+              response.setMessage("Insertion to collection successful✅");
+              response.setPayload(dataToDisplay);
+              response.setSuccess(true);
+              res.json(response);
             })
             .catch((err) => {
               console.log("Error", err);
-              res.json({
-                message: "Couldn't insert to collection",
-                payload:err,
-                status: false,
-              });
+              response.setMessage("Couldn't insert to collection");
+              response.setPayload(err);
+              response.setSuccess(false);
+              res.json(response);
             });
         }
       })
       .catch((err) => {
         console.log("Error", err);
-        res.json({
-          message: "Error checking for duplicates",
-          status: false,
-        });
+        response.setMessage("Error checking for duplicates");
+        response.setSuccess(false);
+        res.json(response);
       });
 }
 
 function getAverageSalary(req, res) {
-  teacher
-    .find({})
+  let response = new Response();
+  teacher.find({})
     .then((result) => {
       let avg = 0;
       let sumOfSalary = 0;
@@ -171,124 +162,114 @@ function getAverageSalary(req, res) {
         sumOfSalary += record.salary;
       });
       avg = Number((sumOfSalary / result.length).toFixed(0));
-      res.json({
-        message: "Average salary of teachers",
-        payload: avg,
-        status: true,
-      });
+      response.setMessage("Average salary of teachers");
+      response.setPayload(avg);
+      response.setSuccess(true);
+      res.json(response);
     })
     .catch((err) => {
-      res.json({
-        message: "Couldn't get the salary details",
-        status: false,
-      });
+      response.setMessage("Couldn't get the salary details");
+      response.setSuccess(false);
+      res.json(response);
     });
 }
 
 function getCountOfUnmarriedTeachers(req,res){
+  let response = new Response();
   teacher.find({status:"unmarried"})
   .then((data)=>{
     let count = data.length;
-    res.json({
-      message: "Count of unmarried teachers",
-      payload: count,
-      status: true,
-    });
+    response.setMessage("Count of unmarried teachers");
+    response.setPayload(count);
+    response.setSuccess(true);
+    res.json(response);
   })
   .catch((err) => {
-    res.json({
-      message: "Couldn't get the marital status details",
-      status: false,
-    });
+    response.setMessage("Couldn't get the marital status details");
+    response.setSuccess(false);
+    res.json(response);
   })
 }
 
 function getCountOfMarriedTeachers(req,res){
+  let response = new Response();
   teacher.find({status:"married"})
   .then((data)=>{
     let count = data.length;
-    res.json({
-      message: "Count of married teachers",
-      payload: count,
-      status: true,
-    });
+    response.setMessage("Count of married teachers");
+    response.setPayload(count);
+    response.setSuccess(true);
+    res.json(response);
   })
   .catch((err) => {
-    res.json({
-      message: "Couldn't get the marital status details",
-      status: false,
-    });
+    response.setMessage("Couldn't get the marital status details");
+    response.setSuccess(false);
+    res.json(response);
   })
 }
 
 function getOldestTeacher(req, res) {
-  teacher
-    .find({})
+  let response = new Response();
+  teacher.find({})
     .then((result) => {
       const ages = result.map((teacher) => teacher.age);
       let largestAge = Math.max(...ages);
       let teacherIs = result.find((teacher) => teacher.age === largestAge);
-      res.json({
-        message: "The oldest teacher is:",
-        payload: teacherIs,
-        status: true,
-      });
+      response.setMessage("The oldest teacher is:");
+      response.setPayload(teacherIs);
+      response.setSuccess(true);
+      res.json(response);
     })
     .catch((err) => {
-      res.json({
-        message: "Couldn't get the data for calculation",
-        status: false,
-      });
+      response.setMessage("Couldn't get the data for calculation");
+      response.setSuccess(false);
+      res.json(response);
     });
 }
 
 function getYoungestTeacher(req, res) {
-  teacher
-    .find({})
+  let response = new Response();
+  teacher.find({})
     .then((result) => {
       const ages = result.map((teacher) => teacher.age);
       const smallestAge = Math.min(...ages);
       let youngestIs = result.find((teacher) => teacher.age === smallestAge);
-      res.json({
-        message: "The youngest teacher is:",
-        payload: youngestIs,
-        status: true,
-      });
+      response.setMessage("The youngest teacher is:");
+      response.setPayload(youngestIs);
+      response.setSuccess(true);
+      res.json(response);
     })
     .catch((err) => {
-      res.json({
-        message: "Couldn't get the data for calculation",
-        status: false,
-      });
+      response.setMessage("Couldn't get the data for calculation");
+      response.setSuccess(false);
+      res.json(response);
     });
 }
 
 function getMostSalariedTeacher(req, res) {
-  teacher
-    .find({})
+  let response = new Response();
+  teacher.find({})
     .then((result) => {
       const salaries = result.map((teacher) => teacher.salary);
       const largestSalary = Math.max(...salaries);
       let teacherWithMostSalary = result.find(
         (teacher) => teacher.salary === largestSalary
       );
-      res.json({
-        message: "The most salried teacher is:",
-        payload: teacherWithMostSalary,
-        status: true,
-      });
+      response.setMessage("The most salried teacher is:");
+      response.setPayload(teacherWithMostSalary);
+      response.setSuccess(true);
+      res.json(response);
     })
     .catch((err) => {
-      res.json({
-        message: "Couldn't get the data for calculation",
-        status: false,
-      });
+      response.setMessage("Couldn't get the data for calculation");
+      response.setSuccess(false);
+      res.json(response);
     });
 }
 
 function getAverageAgeOfTeachers(req, res) {
-  teacher
-    .find({})
+  let response = new Response();
+  teacher.find({})
     .then((result) => {
       let avg = 0;
       let sumOfAge = 0;
@@ -296,21 +277,20 @@ function getAverageAgeOfTeachers(req, res) {
         sumOfAge += record.age;
       });
       avg = Number((sumOfAge / result.length).toFixed(0));
-      res.json({
-        message: "Average age of teachers",
-        payload: avg,
-        status: true,
-      });
+      response.setMessage("Average age of teachers");
+      response.setPayload(avg);
+      response.setSuccess(true);
+      res.json(response);
     })
     .catch((err) => {
-      res.json({
-        message: "Couldn't get the data for calculation",
-        status: false,
-      });
+      response.setMessage("Couldn't get the data for calculation");
+      response.setSuccess(false)
+      res.json(response);
     });
 }
 
 function updateTeacherUsingId(req, res) {
+  let response = new Response();
   let dataToUpdate = req.body;
   let updateId = req.query.id;
   console.log("id to update: ", updateId.name);
@@ -325,43 +305,39 @@ function updateTeacherUsingId(req, res) {
            .then((result)=>{
              console.log("Result", result);
              let updated_result = result;
-                 res.json({
-                   message: `Update Sucessfull!!!✅ updated ${data.name} data with:`,
-                   payload: updated_result,
-                   status: true,
-                 });
+             response.setMessage(`Update Sucessfull!!!✅ updated ${data.name} data with:`);
+             response.setPayload(updated_result);
+             response.setSuccess(true);
+             res.json(response);
            })
            .catch((err) =>{
-             res.json({
-               message: `Error in the query/db etc`,
-               status: false,
-             });
+            response.setMessage(`Error in the query/db etc`);
+            response.setSuccess(false);
+            res.json(response);
            })  
        } 
        else {
-         res.json({
-           message: `Couldn't get the teacher of id: ${updateId.id} data`,
-           status: false,
-         });
+        response.setMessage(`Couldn't get the teacher of id: ${updateId.id} data`);
+        response.setSuccess(false);
+        res.json(response);
        }
       })
       .catch((err) =>{
         console.log("Error", err);
-        res.json({
-          message: "Error checking for if id exists",
-          status: false,
-        });
+        response.setMessage("Error checking for if id exists");
+        response.setSuccess(false);
+        res.json(response);
       });  
   } else {
-    res.json({
-      message: `Please provide the id(existing) and data to update in the body`,
-      status: false,
-    });
+    response.setMessage(`Please provide the id(existing) and data to update in the body`);
+    response.setSuccess(false);
+    res.json(response);
   }
 }
 
 // {name:{$regex:`^${startingLetter}`,$options:"i"}}
 function updateTeacherByName(req, res) {
+  let response = new Response();
   let dataToUpdate = req.body;
   let ogName = req.query;
   console.log("Name to update: ", ogName.name);
@@ -376,43 +352,39 @@ function updateTeacherByName(req, res) {
              )
           .then((result)=>{
             console.log("Result", result);
-            res.json({
-              message: `Update Sucessfull!!!✅ updated ${ogName.name} data with:`,
-              payload: dataToUpdate,
-              status: true,
-            });
+            response.setMessage(`Update Sucessfull!!!✅ updated ${ogName.name} data with:`);
+            response.setPayload(dataToUpdate);
+            response.setSuccess(true);
+            res.json(response);
           })
           .catch((err) =>{
-            res.json({
-              message: `Error in the query/db etc`,
-              status: false,
-            });
+            response.setMessage(`Error in the query/db etc`);
+            response.setSuccess(false);
+            res.json(response);
           });
         } 
         else {
-        res.json({
-          message: `Couldn't get the teacher name ${ogName.name} data`,
-          status: false,
-        });
+          response.setMessage(`Couldn't get the teacher name ${ogName.name} data`);
+          response.setSuccess(false);
+          res.json(response);
         }
       })
       .catch((err)=> {
         console.log("Error", err);
-        res.json({
-          message: "Error checking for if name exists",
-          status: false,
-        });
+        response.setMessage("Error checking for if name exists");
+        response.setSuccess(false);
+        res.json(response);
       }) 
   } 
   else {
-    res.json({
-      message: `Please provide the name (that exists - old name) and data to update in the bidy`,
-      status: false,
-    });
+    response.setMessage(`Please provide the name (that exists - old name) and data to update in the body`);
+    response.setSuccess(false);
+    res.json(response);
   }
 }
 
 function deleteTeacherByName(req, res) {
+    let response = new Response();
     let nameToDelete = req.query;
     let regexName = new RegExp(`^${nameToDelete.name}$`, "i");
     if (nameToDelete.name) {
@@ -423,43 +395,39 @@ function deleteTeacherByName(req, res) {
               .then((result)=>{
                 console.log("Result"+ JSON.stringify(result),"\nDeleted Data"+dataGotDeleted);
                 if (result.deletedCount) {
-                  res.json({
-                    message: `Deleted records of ${nameToDelete.name} Sucessfully!!!✅`,
-                    payload: dataGotDeleted,
-                    status: true,
-                  });
+                  response.setMessage(`Deleted records of ${nameToDelete.name} Sucessfully!!!✅`);
+                  response.setPayload(dataGotDeleted);
+                  response.setSuccess(true);
+                  res.json(response);
                 } else {
-                  res.json({
-                    message: `Already Deleted/No records of name: ${nameToDelete.name}`,
-                    payload: dataGotDeleted,
-                    status: false,
-                  });
+                  response.setMessage(`Already Deleted/No records of name: ${nameToDelete.name}`);
+                  response.setPayload(dataGotDeleted);
+                  response.setSuccess(false);
+                  res.json(response);
                 }
               })
               .catch((err)=>{
-                res.json({
-                  message: `Error in the query/db etc`,
-                  status: false,
-                });
+                response.setMessage(`Error in the query/db etc`);
+                response.setSuccess(false);
+                res.json(response);
               })
         })
         .catch((err)=>{
             console.log("Error", err);
-            res.json({
-              message: "db/syntaxt Error while checking for if name exists",
-              status: false,
-            });
+            response.setMessage("db/syntaxt Error while checking for if name exists");
+            response.setSuccess(false);
+            res.json(response);
         })  
     } 
     else {
-      res.json({
-        message: ` Please Provide name (existing name) to delete data ❌`,
-        status: false,
-      }); 
+      response.setMessage(`Please Provide name (existing name) to delete data ❌`);
+      response.setSuccess(false);
+      res.json(response); 
     }
   }
 
 function deleteTeacherById(req, res) {
+    let response = new Response();
     let idToDelete = req.query;
     teacher.find({ _id:idToDelete.id})
       .then((data)=>{
@@ -468,33 +436,29 @@ function deleteTeacherById(req, res) {
           teacher.findByIdAndDelete({_id:idToDelete.id})
           .then((result)=>{
             console.log("Result", result);
-                res.json({
-                  message: `Deleted records of id: ${idToDelete.id} Sucessfully!!!✅`,
-                  payload: dataGotDeleted,
-                  status: true,
-                });
+            response.setMessage(`Deleted records of id: ${idToDelete.id} Sucessfully!!!✅`);
+            response.setPayload(dataGotDeleted);
+            response.setSuccess(true);
+            res.json(response);
           })
           .catch((err)=>{
-                res.json({
-                  message: `Error in the query/db etc`,
-                  status: false,
-                });
+            response.setMessage(`Error in the query/db etc`);
+            response.setSuccess(false);
+            res.json(response);
           })
         } 
         else {
-          res.json({
-            message: `Couldn't get the student id: ${idToDelete.id} data ❌`,
-            status: false,
-          });
+          response.setMessage(`Couldn't get the student id: ${idToDelete.id} data ❌`);
+          response.setSuccess(false);
+          res.json(response);
         }
 
       })
     .catch((err)=>{
         console.log("Error", err);
-        res.json({
-            message: "Error checking for if id exists",
-            status: false,
-          });
+        response.setMessage("Error checking for if id exists");
+        response.setSuccess(false);
+        res.json(response);
       })
 }
 
