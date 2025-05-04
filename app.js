@@ -1,7 +1,8 @@
 const express = require('express');
 const config = require('./config');
-const constants = require('./shared/constants')
+const constants = require('./shared/constants');
 const app = express();
+app.set('view engine', 'ejs');
 app.use(express.json());
 const port =constants.PORT;
 

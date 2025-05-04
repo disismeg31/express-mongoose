@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+      <title>Home Page</title>
+      <style>
+        body {
+            background-color: rgb(144, 212, 140);
+            text-decoration-color: rgb(44, 44, 44);
+            font-size: 1em;
+        }
+      </style>
+</head>
+<body>
+     <h4>Available apis of <%=data.api_prefix%> are:<br/></h4>
+    <p>How ? </p><p>Ans: teachers/getTeachers</p>
+     <ul>
+        <% data.apis.forEach((api)=>{%>
+            <li>
+                <p><%=api%></p>
+            </li>
+        <%});%>
+     </ul>
+</body>
+</html>
