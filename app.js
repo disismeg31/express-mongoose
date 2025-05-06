@@ -1,10 +1,10 @@
 const express = require('express');
-const config = require('./config');
-const constants = require('./shared/constants');
+const mongooseConfig = require('./config/mongoose');
+const CONSTANTS = require('./shared/constants');
 const app = express();
 app.set('view engine', 'ejs');
 app.use(express.json());
-const port =constants.PORT;
+const port =CONSTANTS.PORT;
 
 let indexRouter = require('./routes/index.routes');
 app.use('',indexRouter);

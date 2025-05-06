@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
-const constants = require('./shared/constants')
+const CONSTANTS = require('./../shared/constants')
 const dbUrl = 'mongodb://localhost:27017/csbatch';
 
-mongoose.connect(constants.MongoDBUrl+constants.mongoDBPort+constants.mongoDBName)
+mongoose.connect(CONSTANTS.MongoDBUrl+CONSTANTS.mongoDBPort+CONSTANTS.mongoDBName)
 .then(() => {
     console.log("Connection created...");
 })

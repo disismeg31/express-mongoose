@@ -1,4 +1,4 @@
-let teacher = require("./../models/teacher"); // require the schema inside the controller
+let Teacher = require("./../models/teacher"); // require the schema inside the controller
 let Response =require("./../shared/response");
 
 function getTeachers(req, res) {
@@ -6,7 +6,7 @@ function getTeachers(req, res) {
   const page = parseInt(req.query.page) || 1;
   const limit = 5;
   const skip = (page - 1) * limit;
-  teacher
+  Teacher
     .find({}, { _id: 0, name: 1, age: 1 })
     .skip(skip)
     .limit(limit)
@@ -27,7 +27,7 @@ function getTeachers(req, res) {
 
 function getTeacherByName(req, res) {
   let response = new Response();
-  teacher.find({ name: new RegExp(`^${req.query.name}$`, "i") })
+  Teacher.find({ name: new RegExp(`^${req.query.name}$`, "i") })
     .then((result) => {
       if (result.length > 0) {
         console.log(result);
@@ -52,7 +52,7 @@ function getTeacherByName(req, res) {
 
 function getTeacherByAlphabeticOrderOfName(req, res) {
   let response = new Response();
-  teacher.find({}, null, { sort: { name: 1 } })
+  Teacher.find({}, null, { sort: { name: 1 } })
     .then((result) => {
       console.log(result);
       response.setMessage(`Got the Teachers in alphabetic order of name😉`);
@@ -72,7 +72,7 @@ function getTeacherByPlace(req,res){
   let response = new Response();
   let {place} = req.body;
   if(place){
-    teacher.findOne({place:new RegExp(`^${place}$`, "i")})
+    Teacher.findOne({place:new RegExp(`^${place}$`, "i")})
   .then((result)=>{
     console.log(result);
     response.setMessage(`Got the Teachers from the place ${place}😉`);
@@ -96,7 +96,7 @@ function getTeacherByPlace(req,res){
 
 function getTeacherByLowestSalaryOrder(req, res) {
   let response = new Response();
-  teacher.find({}, null, { sort: { salary: 1 } })
+  Teacher.find({}, null, { sort: { salary: 1 } })
     .then((result) => {
       console.log(result);
       response.setMessage(`Got the Teachers in lowest salary order😉`);
@@ -116,7 +116,7 @@ function insertTeacher(req, res) {
   let response = new Response();
   let dataToInsert = req.body;
   console.log(dataToInsert);
-    teacher.find({ name: new RegExp(`^${dataToInsert.name}$`, "i") })
+  Teacher.find({ name: new RegExp(`^${dataToInsert.name}$`, "i") })
       .then((result) => {
         if (result.length > 0) {
           console.log("Duplicate found:", result);
@@ -124,7 +124,7 @@ function insertTeacher(req, res) {
           response.setSuccess(false);
           res.json(response);
         } else {
-          teacher
+          Teacher
             .create(dataToInsert)
             .then((createdDoc) => {
               console.log("1 document inserted");
@@ -154,7 +154,7 @@ function insertTeacher(req, res) {
 
 function getAverageSalary(req, res) {
   let response = new Response();
-  teacher.find({})
+  Teacher.find({})
     .then((result) => {
       let avg = 0;
       let sumOfSalary = 0;
@@ -176,7 +176,7 @@ function getAverageSalary(req, res) {
 
 function getCountOfUnmarriedTeachers(req,res){
   let response = new Response();
-  teacher.find({status:"unmarried"})
+  Teacher.find({status:"unmarried"})
   .then((data)=>{
     let count = data.length;
     response.setMessage("Count of unmarried teachers");
@@ -193,7 +193,7 @@ function getCountOfUnmarriedTeachers(req,res){
 
 function getCountOfMarriedTeachers(req,res){
   let response = new Response();
-  teacher.find({status:"married"})
+  Teacher.find({status:"married"})
   .then((data)=>{
     let count = data.length;
     response.setMessage("Count of married teachers");
@@ -210,7 +210,7 @@ function getCountOfMarriedTeachers(req,res){
 
 function getOldestTeacher(req, res) {
   let response = new Response();
-  teacher.find({})
+  Teacher.find({})
     .then((result) => {
       const ages = result.map((teacher) => teacher.age);
       let largestAge = Math.max(...ages);
@@ -229,7 +229,7 @@ function getOldestTeacher(req, res) {
 
 function getYoungestTeacher(req, res) {
   let response = new Response();
-  teacher.find({})
+  Teacher.find({})
     .then((result) => {
       const ages = result.map((teacher) => teacher.age);
       const smallestAge = Math.min(...ages);
@@ -248,7 +248,7 @@ function getYoungestTeacher(req, res) {
 
 function getMostSalariedTeacher(req, res) {
   let response = new Response();
-  teacher.find({})
+  Teacher.find({})
     .then((result) => {
       const salaries = result.map((teacher) => teacher.salary);
       const largestSalary = Math.max(...salaries);
@@ -269,7 +269,7 @@ function getMostSalariedTeacher(req, res) {
 
 function getAverageAgeOfTeachers(req, res) {
   let response = new Response();
-  teacher.find({})
+  Teacher.find({})
     .then((result) => {
       let avg = 0;
       let sumOfAge = 0;
@@ -343,10 +343,10 @@ function updateTeacherByName(req, res) {
   console.log("Name to update: ", ogName.name);
   if (ogName) {
     let regexName = new RegExp(`^${ogName.name}$`, "i");
-      teacher.find({ name: regexName })
+    Teacher.find({ name: regexName })
       .then((data)=>{
         if (data.length > 0) {
-          teacher.updateOne(
+          Teacher.updateOne(
             { name: regexName },
             { $set: dataToUpdate },
              )
@@ -388,10 +388,10 @@ function deleteTeacherByName(req, res) {
     let nameToDelete = req.query;
     let regexName = new RegExp(`^${nameToDelete.name}$`, "i");
     if (nameToDelete.name) {
-        teacher.find({ name: regexName })
+      Teacher.find({ name: regexName })
         .then((data)=>{
           let dataGotDeleted = data;
-          teacher.deleteOne({ name: regexName })
+          Teacher.deleteOne({ name: regexName })
               .then((result)=>{
                 console.log("Result"+ JSON.stringify(result),"\nDeleted Data"+dataGotDeleted);
                 if (result.deletedCount) {
@@ -429,11 +429,11 @@ function deleteTeacherByName(req, res) {
 function deleteTeacherById(req, res) {
     let response = new Response();
     let idToDelete = req.query;
-    teacher.find({ _id:idToDelete.id})
+    Teacher.find({ _id:idToDelete.id})
       .then((data)=>{
         if (data.length > 0) {
           let dataGotDeleted = data;
-          teacher.findByIdAndDelete({_id:idToDelete.id})
+          Teacher.findByIdAndDelete({_id:idToDelete.id})
           .then((result)=>{
             console.log("Result", result);
             response.setMessage(`Deleted records of id: ${idToDelete.id} Sucessfully!!!✅`);

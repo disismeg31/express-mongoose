@@ -1,4 +1,4 @@
-let user = require("./../models/user"); // require the schema inside the controller
+let User = require("./../models/user"); // require the schema inside the controller
 let Response =require("./../shared/response");
 
 function getUsers(req, res) {
@@ -6,7 +6,7 @@ function getUsers(req, res) {
   const page = parseInt(req.query.page) || 1;
   const limit = 5;
   const skip = (page - 1) * limit;
-  user
+  User
     .find({}, { _id: 0, name: 1, age: 1 })
     .skip(skip)
     .limit(limit)
@@ -27,7 +27,7 @@ function insertUser(req, res) {
   let response = new Response();
   let dataToInsert = req.body;
   console.log(dataToInsert);
-  user
+  User
     .find({ name: new RegExp(`^${dataToInsert.name}$`, "i") })
     .then((data) => {
       if (data.length > 0) {
@@ -37,7 +37,7 @@ function insertUser(req, res) {
         response.setSuccess(false);
         res.json(response)
       } else {
-        user.create(dataToInsert)
+        User.create(dataToInsert)
           .then((result) => {
             console.log("1 document inserted");
             const { _id, ...dataOnly } = dataToInsert;
@@ -65,7 +65,7 @@ function insertUser(req, res) {
 
 function getFailedStudents(req, res) {
   let response = new Response();
-      user.find({ marks: { $lt: 18 } })
+  User.find({ marks: { $lt: 18 } })
       .then((data)=>{
         let failedStudents = data;
           response.setMessage("The students who failed are:");
@@ -82,7 +82,7 @@ function getFailedStudents(req, res) {
 
 function getPassedStudents(req, res) {
   let response = new Response();
-      user.find({ marks: { $gte: 18 } },{ name: 1, _id: 0,marks:1 } )
+  User.find({ marks: { $gte: 18 } },{ name: 1, _id: 0,marks:1 } )
       .then((data)=>{
         let failedStudents = data;
         response.setMessage("The names students who passed are:");
@@ -99,7 +99,7 @@ function getPassedStudents(req, res) {
 
 function getAverageAgeOfStudents(req, res) {
   let response = new Response();
-      user.find({})
+  User.find({})
       .then((data)=>{
         let ages = data.map((student) => student.age);
           let sumOfAges = ages.reduce((a, c) => a + c, 0);
@@ -121,11 +121,11 @@ function deleteByName(req, res) {
   let nameToDelete = req.query;
   let regexName = new RegExp(`^${nameToDelete.name}$`, "i");
   if (nameToDelete.name) {
-    user
+    User
       .find({ name: regexName })
       .then((data) => {
         let dataGotDeleted = data;
-        user
+        User
           .deleteOne({ name: regexName })
           .then((result) => {
             console.log(
@@ -166,12 +166,12 @@ function deleteByName(req, res) {
 function deleteById(req, res) {
   let response = new Response();
   let idToDelete = req.query;
-  user
+  User
     .find({ _id: idToDelete.id })
     .then((data) => {
       if (data.length > 0) {
         let dataGotDeleted = data;
-        user
+        User
           .findByIdAndDelete({ _id: idToDelete.id })
           .then((result) => {
             console.log("Result", result);
@@ -205,10 +205,10 @@ function updateUsingId(req, res) {
     let updateId = req.query.id;
     console.log("id to update: ", updateId.name);
     if (updateId) {
-        user.find({ _id: updateId })
+        User.find({ _id: updateId })
         .then((data)=>{
           if (data.length > 0) {
-            user.findByIdAndUpdate(
+            User.findByIdAndUpdate(
                 updateId,
                { $set: dataToUpdate },
                { new: true })
@@ -252,10 +252,10 @@ function updateByName(req, res) {
     console.log("Name to update: ", ogName.name);
     if (ogName) {
       let regexName = new RegExp(`^${ogName.name}$`, "i");
-        user.find({ name: regexName })
+        User.find({ name: regexName })
         .then((data)=>{
           if (data.length > 0) {
-            user.updateOne(
+            User.updateOne(
               { name: regexName },
               { $set: dataToUpdate },
                )

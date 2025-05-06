@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const constants = require('./../shared/constants');
+const CONSTANTS = require('./../shared/constants');
 let Teacher = require("./../models/teacher");
 
 //import response.js
@@ -82,5 +82,5 @@ userSchema.pre('updateOne', function(next){
 })
 
 
-const User = mongoose.model(constants.collectionName.users_collection, userSchema);
+const User = mongoose.model(CONSTANTS.collectionName.users_collection, userSchema);
 module.exports = User;
